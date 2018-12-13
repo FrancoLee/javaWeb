@@ -21,7 +21,7 @@ public @interface EnableAspectJAutoProxy {
 
 `AnnotationAwareAspectJAutoProxyCreator`类继承图
 
-![1544604157557](/home/lx/.config/Typora/typora-user-images/1544604157557.png)
+![1544604157557](./img/1544604157557.png)
 
 其中值得关注部分是继承了`SmartInstantiationAwareBeanPostProcessor, BeanFactoryAware`接口
 
@@ -29,7 +29,7 @@ public @interface EnableAspectJAutoProxy {
 
 在`refresh()`方法中有一个`registerBeanPostProcessors(beanFactory)`方法用于给容器中注册后置处理器。其中就包括了`AnnotationAwareAspectJAutoProxyCreator`。
 
-![1544714326320](/home/lx/.config/Typora/typora-user-images/1544714326320.png)
+![1544714326320](./img/1544714326320.png)
 
 `registerBeanPostProcessors`源码：
 
