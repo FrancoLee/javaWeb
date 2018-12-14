@@ -6,7 +6,7 @@
 
 ```java
 	//切入点注解
-	@Pointcut("execution(* com.yonyou.service..*.*(..))")
+	@Pointcut("execution(* com.lx.animation.config.BeanClass.*(..))")
 	public void cut(){}
     //目标类方法执行前执行该方法
     @Before(value="cut()")
