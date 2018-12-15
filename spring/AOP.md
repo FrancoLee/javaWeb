@@ -184,6 +184,8 @@ private static void registerBeanPostProcessors(
 	}
 ```
 
+至此，我们已经将`AnnotationAwareAspectJAutoProxyCreator`注册好了。也就是说后处理器集合里面有这个处理器了。
+
 在`createBean()`中有以下代码片段
 
 ![1544723242462](./img/1544723242462.png)
@@ -243,7 +245,7 @@ private static void registerBeanPostProcessors(
 
 这里调用了`postProcessBeforeInstantiation`方法，也就是` AbstractAutoProxyCreator`中实现的`postProcessBeforeInstantiation`方法（` AbstractAutoProxyCreator继承SmartInstantiationAwareBeanPostProcessor，SmartInstantiationAwareBeanPostProcessor继承InstantiationAwareBeanPostProcessor`）
 
-`` AbstractAutoProxyCreator->postProcessBeforeInstantiation()`方法源码：
+` AbstractAutoProxyCreator->postProcessBeforeInstantiation()`方法源码：
 
 ```java
 @Override
