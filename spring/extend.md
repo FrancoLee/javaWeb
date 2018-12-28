@@ -224,3 +224,102 @@ protected Collection<ApplicationListener<?>> getApplicationListeners(
 在容器刷新完成后会调用`finishRefresh()->publishEvent(new ContextRefreshedEvent(this))`发布`ContextRefreshedEvent`事件。
 
 在调用容器的`close()`方法时，会调用`doClose()->publishEvent(new ContextClosedEvent(this))`发布`ContextClosedEvent`事件
+
+`@EventListener`标识在方法上，使得一个方法可以监听事件。`classes`属性可以设置要监听的类型。
+
+```java
+ *
+ * @author Stephane Nicoll
+ * @since 4.2
+ * @see EventListenerMethodProcessor
+ */
+@Target({ElementType.METHOD, ElementType.ANNOTATION_TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface EventListener {
+
+	/**
+	 * Alias for {@link #classes}.
+	 */
+	@AliasFor("classes")
+	Class<?>[] value() default {};
+
+	/**
+	 * The event classes that this listener handles.
+	 * <p>If this attribute is specified with a single value, the
+	 * annotated method may optionally accept a single parameter.
+	 * However, if this attribute is specified with multiple values,
+	 * the annotated method must <em>not</em> declare any parameters.
+	 */
+	@AliasFor("value")
+	Class<?>[] classes() default {};
+
+	/**
+	 * Spring Expression Language (SpEL) attribute used for making the
+	 * event handling conditional.
+	 * <p>Default is {@code ""}, meaning the event is always handled.
+	 * <p>The SpEL expression evaluates against a dedicated context that
+	 * provides the following meta-data:
+	 * <ul>
+	 * <li>{@code #root.event}, {@code #root.args} for
+	 * references to the {@link ApplicationEvent} and method arguments
+	 * respectively.</li>
+	 * <li>Method arguments can be accessed by index. For instance the
+	 * first argument can be accessed via {@code #root.args[0]}, {@code #p0}
+	 * or {@code #a0}. Arguments can also be accessed by name if that
+	 * information is available.</li>
+	 * </ul>
+	 */
+	String condition() default "";
+
+}
+
+```
+
+在源码中说道可以看看`EventListenerMethodProcessor`的实现，也就是说这个注解是用`EventListenerMethodProcessor`来解析的。
+
+`EventListenerMethodProcessor`继承了`SmartInitializingSingleton`并重写了`afterSingletonsInstantiated`
+
+`SmartInitializingSingleton`的`afterSingletonsInstantiated`在所有的单实例`bean`初始化后被调用。
+
+```java
+public interface SmartInitializingSingleton {
+
+	/**
+	 * Invoked right at the end of the singleton pre-instantiation phase,
+	 * with a guarantee that all regular singleton beans have been created
+	 * already. {@link ListableBeanFactory#getBeansOfType} calls within
+	 * this method won't trigger accidental side effects during bootstrap.
+	 * <p><b>NOTE:</b> This callback won't be triggered for singleton beans
+	 * lazily initialized on demand after {@link BeanFactory} bootstrap,
+	 * and not for any other bean scope either. Carefully use it for beans
+	 * with the intended bootstrap semantics only.
+	 */
+	void afterSingletonsInstantiated();
+
+}
+```
+
+也就是对应与`refersh()->finishBeanFactoryInitialization(beanFactory)->beanFactory.preInstantiateSingletons()`方法中，创建完所有的单实例`bean`(非懒加载的)后会执行下面代码
+
+```java
+	// Trigger post-initialization callback for all applicable beans...
+		for (String beanName : beanNames) {
+			Object singletonInstance = getSingleton(beanName);
+			if (singletonInstance instanceof SmartInitializingSingleton) {
+				final SmartInitializingSingleton smartSingleton = (SmartInitializingSingleton) singletonInstance;
+				if (System.getSecurityManager() != null) {
+					AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+						smartSingleton.afterSingletonsInstantiated();
+						return null;
+					}, getAccessControlContext());
+				}
+				else {
+					smartSingleton.afterSingletonsInstantiated();
+				}
+			}
+		}
+```
+
+也就是如果`bean`继承了`SmartInitializingSingleton`接口的话，调用`bean`的`afterSingletonsInstantiated()`方法。
+
