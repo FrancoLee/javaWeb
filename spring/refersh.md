@@ -5,17 +5,17 @@
 `refersh()`容器刷新方法。会按顺序调用一下几个方法来完成容器的刷新操作。
 
 1.  [`prepareRefresh()`](#1)
-2. `obtainFreshBeanFactory()`
-3. `prepareBeanFactory(beanFactory)`
-4. `postProcessBeanFactory(beanFactory)`
-5. `invokeBeanFactoryPostProcessors(beanFactory)`
-6. `registerBeanPostProcessors(beanFactory)`
-7. `initMessageSource()` 
-8. `initMessageSource()` 
-9. `onRefresh()` 
-10. `registerListeners()` 
-11. `finishBeanFactoryInitialization(beanFactory)` 
-12. `finishRefresh()`
+2.  [`obtainFreshBeanFactory()`](#2)
+3.  [`prepareBeanFactory(beanFactory)`](#3)
+4.  [`postProcessBeanFactory(beanFactory)`](#4)
+5.  [`invokeBeanFactoryPostProcessors(beanFactory)`](#5)
+6.  [`registerBeanPostProcessors(beanFactory)`](#6)
+7.  [`initMessageSource()` ](#7)
+8.  [`initMessageSource()`](#8) 
+9.  [`onRefresh()`](#9) 
+10.  [`registerListeners()`](#10) 
+11.  [`finishBeanFactoryInitialization(beanFactory)`](#11) 
+12.  [`finishRefresh()`](#12)
 
 ### <span id="1">`prepareRefresh()`</span>: 
 
@@ -58,7 +58,7 @@
 
 + `this.earlyApplicationEvents = new LinkedHashSet<>()`用于保存容器早期发生的事件，使得在派发器实例化后可以派发这些事件。
 
-###  `obtainFreshBeanFactory()`:
+###   <span id="2">`obtainFreshBeanFactory()`:</span>
 
 ​	获取`BeanFactory`
 
@@ -94,7 +94,7 @@
 + `beanFactory`的类型为`this.beanFactory = new DefaultListableBeanFactory()`
 + ` getBeanFactory()`返回`GenericApplicationContext.beanFactory() ` `DefaultListableBeanFactory`类型
 
-### `prepareBeanFactory(beanFactory)`:
+###  <span id="3"> `prepareBeanFactory(beanFactory)`:</span>
 
 ​	做一些`beanFactory`使用之前的准备工作。	
 
@@ -176,7 +176,7 @@
 
 ```
 
-### `postProcessBeanFactory(beanFactory)`
+###  <span id="4">`postProcessBeanFactory(beanFactory)`</span>
 
 ​	空方法，为了让子类能在`BeanFactory`创建并准备完成后能调用一些自己实现的处理工作。
 
@@ -195,7 +195,7 @@
 	}
 ```
 
-### `invokeBeanFactoryPostProcessors(beanFactory)`
+###  <span id="5">`invokeBeanFactoryPostProcessors(beanFactory)`</span>
 
 ​	执行`BeanFactoryPostProcessors`接口，大致流程就是获得所有实现了`BeanDefinitionRegistryPostProcessor，BeanFactoryPostProcessor`接口的类，先按优先级执行`BeanDefinitionRegistryPostProcessor`接口中的方法，接着按优先级执行`BeanFactoryPostProcessor`接口中的方法。代码实在长，就不贴了
 
@@ -274,7 +274,7 @@ public static void registerBeanPostProcessors(
 	}
 ```
 
-### `initMessageSource()`
+###  <span id="6">`initMessageSource()`</span>
 
 ​		初始化`MessageSource`组件（用于国际化功能，消息绑定，消息解析）。
 
@@ -311,23 +311,23 @@ protected void initMessageSource() {
 
 查看容器中是否有`id`为`messageSource`，类型为`MessageSource`的组件。如果没有`new DelegatingMessageSource()`,并把`messageSource`注册到容器中。
 
-### `initApplicationEventMulticaster()`
+###  <span id="7">`initApplicationEventMulticaster()`</span>
 
 ​	初始化事件派发器。具体看`extend.md`中的内容
 
-### `onRefresh()`
+###  <span id="8">`onRefresh()`</span>
 
 ​	空方法，留给子类重写。
 
-## `registerListeners()`
+##  <span id="9">`registerListeners()`</span>
 
 ​	注册监听器，并将早期产生的事件发布出去。具体可以看`extend.md`的内容
 
-### `finishBeanFactoryInitialization(beanFactory)`
+###  <span id="10">`finishBeanFactoryInitialization(beanFactory)`</span>
 
 ​	注册所有的剩下的非懒加载的单实例`bean`，具体可以看`IOC.md`的内容
 
-### `finishRefresh()`
+###  <span id="11">`finishRefresh()`</span>
 
 ​	完成容器刷新的最最后处理。
 
