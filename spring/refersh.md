@@ -10,8 +10,8 @@
 4.  [`postProcessBeanFactory(beanFactory)`](#4)
 5.  [`invokeBeanFactoryPostProcessors(beanFactory)`](#5)
 6.  [`registerBeanPostProcessors(beanFactory)`](#6)
-7.  [`initMessageSource()` ](#7)
-8.  [`initMessageSource()`](#8) 
+7.  [`initMessageSource()`](#7)
+8.  [`initApplicationEventMulticaster()`](#8) 
 9.  [`onRefresh()`](#9) 
 10.  [`registerListeners()`](#10) 
 11.  [`finishBeanFactoryInitialization(beanFactory)`](#11) 
@@ -199,7 +199,7 @@
 
 ​	执行`BeanFactoryPostProcessors`接口，大致流程就是获得所有实现了`BeanDefinitionRegistryPostProcessor，BeanFactoryPostProcessor`接口的类，先按优先级执行`BeanDefinitionRegistryPostProcessor`接口中的方法，接着按优先级执行`BeanFactoryPostProcessor`接口中的方法。代码实在长，就不贴了
 
-### `registerBeanPostProcessors(beanFactory)`
+###  <span id="6">`registerBeanPostProcessors(beanFactory)`</span>
 
  	添加`BeanPostProcessorChecker`,然后注册所有实现了`BeanPostProcessor`接口中方法的实现类，并按`PriorityOrdered、Ordered`接口来设置优先级。`MergedBeanDefinitionPostProcessor`类型的放在`internalPostProcessors`数组中，其他的放在`orderedPostProcessors，nonOrderedPostProcessors`数组中。`internalPostProcessors`是最后被注册的。最后还会添加一个`ApplicationListenerDetector`类型的`BeanPostProcessor`，用于处理监听器。
 
@@ -274,7 +274,7 @@ public static void registerBeanPostProcessors(
 	}
 ```
 
-###  <span id="6">`initMessageSource()`</span>
+###  <span id="7">`initMessageSource()`</span>
 
 ​		初始化`MessageSource`组件（用于国际化功能，消息绑定，消息解析）。
 
@@ -311,23 +311,23 @@ protected void initMessageSource() {
 
 查看容器中是否有`id`为`messageSource`，类型为`MessageSource`的组件。如果没有`new DelegatingMessageSource()`,并把`messageSource`注册到容器中。
 
-###  <span id="7">`initApplicationEventMulticaster()`</span>
+###  <span id="8">`initApplicationEventMulticaster()`</span>
 
 ​	初始化事件派发器。具体看`extend.md`中的内容
 
-###  <span id="8">`onRefresh()`</span>
+###  <span id="9">`onRefresh()`</span>
 
 ​	空方法，留给子类重写。
 
-##  <span id="9">`registerListeners()`</span>
+##  <span id="10">`registerListeners()`</span>
 
 ​	注册监听器，并将早期产生的事件发布出去。具体可以看`extend.md`的内容
 
-###  <span id="10">`finishBeanFactoryInitialization(beanFactory)`</span>
+###  <span id="11">`finishBeanFactoryInitialization(beanFactory)`</span>
 
 ​	注册所有的剩下的非懒加载的单实例`bean`，具体可以看`IOC.md`的内容
 
-###  <span id="11">`finishRefresh()`</span>
+###  <span id="12">`finishRefresh()`</span>
 
 ​	完成容器刷新的最最后处理。
 
@@ -414,4 +414,4 @@ protected void finishRefresh() {
 
 
 
-sysy
+
