@@ -219,11 +219,44 @@ protected Collection<ApplicationListener<?>> getApplicationListeners(
 	}
 ```
 
-如果有容器理里有`PPLICATION_EVENT_MULTICASTER_BEAN_NAME = "applicationEventMulticaster"，ApplicationEventMulticaster.class`则直接从容器中获取，如果没有`new SimpleApplicationEventMulticaster(beanFactory)`.最后将`ApplicationEventMulticaster`放入`this.applicationEventMulticaster`字段。
+如果有容器理里有`PPLICATION_EVENT_MULTICASTER_BEAN_NAME = "applicationEventMulticaster"，ApplicationEventMulticaster.class`则直接从容器中获取，如果没有`new SimpleApplicationEventMulticaster(beanFactory)`.最后将`ApplicationEventMulticaster`放入`this.applicationEventMulticaster`字段，并且把`ApplicationEventMulticaster`注册进容器。
 
 在容器刷新完成后会调用`finishRefresh()->publishEvent(new ContextRefreshedEvent(this))`发布`ContextRefreshedEvent`事件。
 
 在调用容器的`close()`方法时，会调用`doClose()->publishEvent(new ContextClosedEvent(this))`发布`ContextClosedEvent`事件
+
+`registerListeners()`注册监听器，并将早期收集（`refersh`调用后，到`registerListeners()`）的事件发布
+
+```java
+	/**
+	 * Add beans that implement ApplicationListener as listeners.
+	 * Doesn't affect other listeners, which can be added without being beans.
+	 */
+	protected void registerListeners() {
+		// Register statically specified listeners first.
+		for (ApplicationListener<?> listener : getApplicationListeners()) {
+			getApplicationEventMulticaster().addApplicationListener(listener);
+		}
+
+		// Do not initialize FactoryBeans here: We need to leave all regular beans
+		// uninitialized to let post-processors apply to them!
+		String[] listenerBeanNames = getBeanNamesForType(ApplicationListener.class, true, false);
+		for (String listenerBeanName : listenerBeanNames) {
+			getApplicationEventMulticaster().addApplicationListenerBean(listenerBeanName);
+		}
+
+		// Publish early application events now that we finally have a multicaster...
+		Set<ApplicationEvent> earlyEventsToProcess = this.earlyApplicationEvents;
+		this.earlyApplicationEvents = null;
+		if (earlyEventsToProcess != null) {
+			for (ApplicationEvent earlyEvent : earlyEventsToProcess) {
+				getApplicationEventMulticaster().multicastEvent(earlyEvent);
+			}
+		}
+	}
+```
+
+
 
 `@EventListener`标识在方法上，使得一个方法可以监听事件。`classes`属性可以设置要监听的类型。
 
@@ -276,7 +309,7 @@ public @interface EventListener {
 
 ```
 
-在源码中说道可以看看`EventListenerMethodProcessor`的实现，也就是说这个注解是用`EventListenerMethodProcessor`来解析的。
+在源码中说到可以看看`EventListenerMethodProcessor`的实现，也就是说这个注解是用`EventListenerMethodProcessor`来解析的。
 
 `EventListenerMethodProcessor`继承了`SmartInitializingSingleton`并重写了`afterSingletonsInstantiated`
 
